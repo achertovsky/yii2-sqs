@@ -1,0 +1,25 @@
+{
+    "name": "achertovsky/yii2-sqs",
+    "type": "yii2-extension",
+    "license": "MIT",
+    "description": "Lib to work with SQS",
+    "keywords": ["yii2", "sqs"],
+    "version": "@dev",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Alexander Zaets",
+            "email": "alexzaets.dev@gmail.com"
+        }
+    ],
+
+    "require": {
+        "php": ">=5.4.0",
+        "yiisoft/yii2": ">=2.0.4"
+    },
+
+    "autoload": {
+        "psr-4": { "achertovsky\\sqs": "src/" }
+    }
+}
+
