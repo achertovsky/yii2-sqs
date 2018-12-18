@@ -243,4 +243,25 @@ class SQSHandler extends BaseObject
         }
         return true;
     }
+
+    /**
+     * Deletes messages
+     *
+     * @param array $params
+     * @return boolean
+     */
+    public function deleteMessageBatchAsync($params)
+    {
+        if (empty($params['QueueUrl'])) {
+            $params['QueueUrl'] = $this->config['endpoint'];
+        }
+        
+        try {
+            $this->client->deleteMessageBatchAsync($params);
+        } catch (\Exception $ex) {
+            Yii::error($ex);
+            return false;
+        }
+        return true;
+    }
 }
