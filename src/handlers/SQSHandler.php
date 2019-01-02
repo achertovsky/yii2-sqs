@@ -9,10 +9,17 @@ use common\models\SQSMessage;
 use Aws\Exception\AwsException;
 
 /**
+ * Docs:
+ * https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-sqs-2012-11-05.html#sendmessagebatch
  * Contains main operations of SQS 
  */
 class SQSHandler extends BaseObject
 {
+    /**
+     * Max amount of messages that may be sent is 10, refer docs link #1
+     */
+    const MAX_SEND_MESSAGE_BATCH = 10;
+
     /**
      * Config predefine
      *
