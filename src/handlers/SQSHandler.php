@@ -1,13 +1,13 @@
 <?php
-
+?
 namespace achertovsky\sqs\handlers;
-
+?
 use Yii;
 use Aws\Sqs\SqsClient;
 use yii\base\BaseObject;
 use common\models\SQSMessage;
 use Aws\Exception\AwsException;
-
+?
 /**
  * Docs:
  * https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-sqs-2012-11-05.html#sendmessagebatch
@@ -19,7 +19,7 @@ class SQSHandler extends BaseObject
      * Max amount of messages that may be sent is 10, refer docs link #1
      */
     const MAX_SEND_MESSAGE_BATCH = 10;
-
+?
     /**
      * Config predefine
      *
@@ -29,18 +29,18 @@ class SQSHandler extends BaseObject
         'version' => "2012-11-05",
         'credentials' => false,
     ];
-
+?
     /**
      * @var SqsClient
      */
     protected $client = null;
-
+?
     /** @inheritDoc */
     public function init()
     {
         $this->client = new SqsClient($this->config);
     }
-
+?
     /**
      * @param string $endpoint
      * @return void
@@ -52,7 +52,7 @@ class SQSHandler extends BaseObject
             $this->client = new SqsClient($this->config);
         }
     }
-
+?
     /**
      * @param string $region
      * @return void
@@ -64,7 +64,7 @@ class SQSHandler extends BaseObject
             $this->client = new SqsClient($this->config);
         }
     }
-
+?
     /**
      * @param string $version
      * @return void
@@ -76,7 +76,7 @@ class SQSHandler extends BaseObject
             $this->client = new SqsClient($this->config);
         }
     }
-
+?
     /**
      * Adding to client credentials
      *
@@ -98,7 +98,7 @@ class SQSHandler extends BaseObject
             $this->client = new SqsClient($this->config);
         }
     }
-
+?
     /**
      * Sends an message to sqs in async manner
      *
@@ -109,7 +109,7 @@ class SQSHandler extends BaseObject
     {
         $this->send($message, 'sendMessageAsync');
     }
-
+?
     /**
      * Sends an message to sqs
      *
@@ -133,12 +133,12 @@ class SQSHandler extends BaseObject
             Yii::error("No endpoint set");
             return;
         }
-
+?
         $send = [
             'Entries' => [],
             'QueueUrl' => $this->config['endpoint'],
         ];
-
+?
         foreach ($messages as $message) {
             $message->scenario = 'batch';
             if (!$message->validate()) {
@@ -161,7 +161,7 @@ class SQSHandler extends BaseObject
         }
         
         $chunks = array_chunk($send['Entries'], 10);
-
+?
         $count = 0;
         foreach ($chunks as $chunk) {
             try {
@@ -169,15 +169,15 @@ class SQSHandler extends BaseObject
                 $send['Entries'] = $chunk;
                 $this->client->sendMessageBatch($send);
             } catch (\Exception $ex) {
-                Yii::error($ex);
+                Yii::error('SQSHandler sendMessageBatch Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
                 return $count;
             }
         }
-
+?
         Yii::info("Sent to SQS $count");
         return $count;
     }
-
+?
     /**
      * Contains logic of send message options
      *
@@ -203,12 +203,12 @@ class SQSHandler extends BaseObject
         try {
             $this->client->$clientFunc($send);
         } catch (\Exception $ex) {
-            Yii::error($ex);
+            Yii::error('SQSHandler send Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
             return false;
         }
         return true;
     }
-
+?
     /**
      * Receives messages
      *
@@ -225,11 +225,11 @@ class SQSHandler extends BaseObject
             $messages = $this->client->receiveMessage($params);
             return $messages;
         } catch (\Exception $ex) {
-            Yii::error($ex);
+            Yii::error('SQSHandler receiveMessage Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
             return [];
         }
     }
-
+?
     /**
      * Deletes messages
      *
@@ -245,12 +245,12 @@ class SQSHandler extends BaseObject
         try {
             $this->client->deleteMessageBatch($params);
         } catch (\Exception $ex) {
-            Yii::error($ex);
+            Yii::error('SQSHandler deleteMessageBatch Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
             return false;
         }
         return true;
     }
-
+?
     /**
      * Deletes messages
      *
@@ -266,7 +266,7 @@ class SQSHandler extends BaseObject
         try {
             $this->client->deleteMessageBatchAsync($params);
         } catch (\Exception $ex) {
-            Yii::error($ex);
+            Yii::error('SQSHandler deleteMessageBatchAsync Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
             return false;
         }
         return true;
