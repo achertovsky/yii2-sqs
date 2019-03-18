@@ -174,7 +174,7 @@ class SQSHandler extends BaseObject
             }
         }
 
-        Yii::info("Sent to SQS $count");
+        Yii::trace("Sent to SQS $count");
         return $count;
     }
 
