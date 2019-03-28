@@ -271,4 +271,37 @@ class SQSHandler extends BaseObject
         }
         return true;
     }
+
+    /**
+     * Returns the approximate number of messages available for retrieval from the queue.
+     *
+     * @return int
+     */
+    public function getTotalMessagesAmount()
+    {
+        $response = $this->getQueueAttributes(['AttributeNames' => ['ApproximateNumberOfMessages']]);
+        if (!isset($response->get('Attributes')['ApproximateNumberOfMessages'])) {
+            return 0;
+        }
+        return $response->get('Attributes')['ApproximateNumberOfMessages'];
+    }
+
+    /**
+     * https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-sqs-2012-11-05.html#getqueueattributes
+     *
+     * @param array $attributes
+     * @return array
+     */
+    public function getQueueAttributes($attributes = [])
+    {
+        if (empty($attributes['QueueUrl'])) {
+            $attributes['QueueUrl'] = $this->config['endpoint'];
+        }
+        try {
+            return $this->client->getQueueAttributes($attributes);
+        } catch (\Exception $ex) {
+            Yii::error($ex);
+            return [];
+        }
+    }
 }
