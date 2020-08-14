@@ -213,7 +213,7 @@ class SQSHandler extends BaseObject
      * Receives messages
      *
      * @param array $params
-     * @return array
+     * @return \Aws\Result
      */
     public function receiveMessage($params)
     {
