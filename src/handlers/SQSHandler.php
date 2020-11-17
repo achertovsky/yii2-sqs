@@ -100,6 +100,18 @@ class SQSHandler extends BaseObject
     }
 
     /**
+     * @param integer $timeout
+     * @return void
+     */
+    public function setTimeout($timeout)
+    {
+        $this->config['http']['timeout'] = $timeout;
+        if (!is_null($this->client)) {
+            $this->client = new SqsClient($this->config);
+        }
+    }
+
+    /**
      * Sends an message to sqs in async manner
      *
      * @param SQSMessage $message
@@ -167,14 +179,19 @@ class SQSHandler extends BaseObject
             try {
                 $count += count($chunk);
                 $send['Entries'] = $chunk;
-                $this->client->sendMessageBatch($send);
+                $result = $this->client->sendMessageBatch($send);
+                $code = $result->get('@metadata')['statusCode'];
+                if ($code != 200) {
+                    Yii::error("Sending data to sqs returned $code code");
+                    return false;
+                }
             } catch (\Exception $ex) {
                 Yii::error('SQSHandler sendMessageBatch Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
                 return $count;
             }
         }
 
-        Yii::trace("Sent to SQS $count");
+        Yii::debug("Sent to SQS $count");
         return $count;
     }
 
@@ -201,7 +218,12 @@ class SQSHandler extends BaseObject
             $send[$name] = $data;
         }
         try {
-            $this->client->$clientFunc($send);
+            $result = $this->client->$clientFunc($send);
+            $code = $result->get('@metadata')['statusCode'];
+            if ($code != 200) {
+                Yii::error("Sending data to sqs returned $code code");
+                return false;
+            }
         } catch (\Exception $ex) {
             Yii::error('SQSHandler send Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
             return false;
