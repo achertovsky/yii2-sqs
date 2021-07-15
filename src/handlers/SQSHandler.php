@@ -142,7 +142,7 @@ class SQSHandler extends BaseObject
     public function sendMessageBatch(&$messages)
     {
         if (empty($this->config['endpoint'])) {
-            Yii::error("No endpoint set");
+            Yii::error("No endpoint set", 'sqs');
             return;
         }
 
@@ -154,7 +154,7 @@ class SQSHandler extends BaseObject
         foreach ($messages as $message) {
             $message->scenario = 'batch';
             if (!$message->validate()) {
-                Yii::error($message->errors);
+                Yii::error($message->errors, 'sqs');
                 continue;
             }
             $entry = [
@@ -182,16 +182,16 @@ class SQSHandler extends BaseObject
                 $result = $this->client->sendMessageBatch($send);
                 $code = $result->get('@metadata')['statusCode'];
                 if ($code != 200) {
-                    Yii::error("Sending data to sqs returned $code code");
+                    Yii::error("Sending data to sqs returned $code code", 'sqs');
                     return false;
                 }
             } catch (\Exception $ex) {
-                Yii::error('SQSHandler sendMessageBatch Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
+                Yii::error('SQSHandler sendMessageBatch Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString(), 'sqs');
                 return $count;
             }
         }
 
-        Yii::debug("Sent to SQS $count");
+        Yii::debug("Sent to SQS $count", 'sqs');
         return $count;
     }
 
@@ -221,11 +221,11 @@ class SQSHandler extends BaseObject
             $result = $this->client->$clientFunc($send);
             $code = $result->get('@metadata')['statusCode'];
             if ($code != 200) {
-                Yii::error("Sending data to sqs returned $code code");
+                Yii::error("Sending data to sqs returned $code code", 'sqs');
                 return false;
             }
         } catch (\Exception $ex) {
-            Yii::error('SQSHandler send Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
+            Yii::error('SQSHandler send Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString(), 'sqs');
             return false;
         }
         return true;
@@ -247,7 +247,7 @@ class SQSHandler extends BaseObject
             $messages = $this->client->receiveMessage($params);
             return $messages;
         } catch (\Exception $ex) {
-            Yii::error('SQSHandler receiveMessage Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
+            Yii::error('SQSHandler receiveMessage Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString(), 'sqs');
             return [];
         }
     }
@@ -267,7 +267,7 @@ class SQSHandler extends BaseObject
         try {
             $this->client->deleteMessageBatch($params);
         } catch (\Exception $ex) {
-            Yii::error('SQSHandler deleteMessageBatch Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
+            Yii::error('SQSHandler deleteMessageBatch Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString(), 'sqs');
             return false;
         }
         return true;
@@ -288,7 +288,7 @@ class SQSHandler extends BaseObject
         try {
             $this->client->deleteMessageBatchAsync($params);
         } catch (\Exception $ex) {
-            Yii::error('SQSHandler deleteMessageBatchAsync Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString());
+            Yii::error('SQSHandler deleteMessageBatchAsync Exception: Code: '.$ex->getCode().' ; Message: '.$ex->getMessage().' ; Trace: '.$ex->getTraceAsString(), 'sqs');
             return false;
         }
         return true;
@@ -322,7 +322,7 @@ class SQSHandler extends BaseObject
         try {
             return $this->client->getQueueAttributes($attributes);
         } catch (\Exception $ex) {
-            Yii::error($ex);
+            Yii::error($ex, 'sqs');
             return [];
         }
     }
